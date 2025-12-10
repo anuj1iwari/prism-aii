@@ -320,12 +320,12 @@ export default function App() {
   const [attachment, setAttachment] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // --- Dynamic Title & Favicon Effect ---
+  // --- Dynamic Title & Favicon Effect (Magic Fix) ---
   useEffect(() => {
     // 1. Set Page Title
     document.title = "Prism AI | Unified Intelligence";
 
-    // 2. Set Dynamic Favicon
+    // 2. Set Dynamic Favicon (SVG as Data URI)
     const setFavicon = () => {
       let link = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
       if (!link) {
@@ -333,6 +333,8 @@ export default function App() {
         link.rel = 'shortcut icon';
         document.head.appendChild(link);
       }
+      // Encoded SVG Data URI matching the Prism Logo style (Gradient + White Triangle)
+      // This creates a rounded square with emerald-blue gradient and white triangle
       link.href = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2334d399'/%3E%3Cstop offset='100%25' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M16 6L6 24h20L16 6z' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E`;
     };
     setFavicon();
@@ -368,6 +370,7 @@ export default function App() {
   };
 
   const handleSignIn = (provider: string) => {
+    // Simple validation for email
     if (provider === 'email' && !email.trim()) {
         alert("Please enter a valid email address.");
         return;
@@ -376,12 +379,13 @@ export default function App() {
     setTimeout(() => {
         setProcessing(false);
         setView('chat');
-    }, 1500); 
+    }, 1500); // Simulate network delay
   };
 
   const toggleModel = (id: string) => {
     const model = MODELS.find(m => m.id === id);
     if (model?.premium && !isPremium) {
+      // If user tries to toggle a premium model but isn't premium
       if (!activeModels.includes(id)) {
         alert("This model is locked! Please click 'Upgrade' in the modal to unlock.");
         return;
@@ -428,9 +432,10 @@ export default function App() {
     setMessages(prev => [...prev, userMsg]);
     const currentInput = input;
     setInput('');
-    setAttachment(null);
+    setAttachment(null); // Clear attachment
     setProcessing(true);
     
+    // Check for Prism Synthesis Mode (Super Fiesta)
     if (isSuperFiesta) {
         setTimeout(() => {
             setMessages(prev => [...prev, {
@@ -443,8 +448,13 @@ export default function App() {
         return;
     }
 
+    // Default Multi-Chat Behavior: All active models reply
     setTimeout(() => {
+      // Determine which models reply. 
+      // If isMultiChat is true (default), ALL active models reply. 
+      // If false, only the first active model replies.
       const modelsToReply = isMultiChat ? activeModels : [activeModels[0]];
+      
       const newResponses: Message[] = modelsToReply.map(modelId => {
         const modelInfo = MODELS.find(m => m.id === modelId);
         return {
@@ -474,6 +484,7 @@ export default function App() {
     </motion.div>
   );
 
+  // --- Legal Modal Component ---
   const LegalModal = ({ title, content, onClose }: { title: string; content: string; onClose: () => void }) => (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <motion.div 
@@ -505,6 +516,7 @@ export default function App() {
     return (
       <div className={`min-h-screen ${theme.bg} ${theme.text} font-sans selection:bg-emerald-500/30 scroll-smooth transition-colors duration-300`}>
         <style>{`@keyframes shine { 100% { left: 125%; } } @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }`}</style>
+        {/* Navbar */}
         <nav className={`fixed top-0 w-full z-50 ${theme.navBg} backdrop-blur-md border-b ${theme.border} transition-colors duration-300`}>
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -527,6 +539,7 @@ export default function App() {
           </div>
         </nav>
 
+        {/* Hero Section */}
         <div className="relative pt-32 pb-20 overflow-hidden">
            <div className={`absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] ${!isDark && 'opacity-50'}`} />
            <div className={`absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px] ${!isDark && 'opacity-50'}`} />
@@ -542,6 +555,7 @@ export default function App() {
                 <button className={`w-full sm:w-auto px-8 py-4 ${isDark ? 'bg-white/5 hover:bg-white/10' : 'bg-black/5 hover:bg-black/10'} border ${theme.border} rounded-full text-lg font-medium transition-colors flex items-center justify-center gap-2`}><PlayCircle className="w-5 h-5" /> Watch Demo</button>
               </div>
             </motion.div>
+            {/* Models Preview Grid */}
             <div className="relative mt-20 h-[400px] md:h-[500px] w-full max-w-5xl mx-auto">
                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className={`absolute inset-0 rounded-xl border border-emerald-500/30 ${isDark ? 'bg-[#0f0f0f]' : 'bg-white'} shadow-2xl shadow-emerald-900/20 overflow-hidden flex flex-col items-center justify-center p-8`}>
                    <div className="text-center mb-8">
@@ -567,6 +581,7 @@ export default function App() {
           </div>
         </div>
 
+        {/* Feature List */}
         <div id="features" className={`${isDark ? 'bg-[#0a0a0a]' : 'bg-gray-50'} border-y ${theme.border} scroll-mt-20 relative transition-colors duration-300`}>
            <div className="max-w-7xl mx-auto px-6 pt-24 pb-12 text-center">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">One Window. Six Perspectives. <br /><span className={theme.textMuted}>Achieve Optimal Efficiency.</span></h2>
@@ -578,7 +593,7 @@ export default function App() {
                  <div className={`${isDark ? 'bg-[#0f0f0f]' : 'bg-white'} rounded-3xl border ${theme.border} shadow-2xl overflow-hidden w-full h-[550px] flex flex-col transition-colors duration-300`}>
                     <div className={`flex flex-col ${idx % 2 === 1 ? 'md:flex-row-reverse' : 'md:flex-row'} items-center gap-4 md:gap-8 p-6 md:p-8 h-full`}>
                       <div className="flex-1 space-y-4 overflow-y-auto max-h-full pr-2">
-                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center border ${theme.border} shadow-lg flex-shrink-0`}>{React.cloneElement(feature.icon, { className: "w-5 h-5 md:w-6 md:h-6 text-white" })}</div>
+                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center border ${theme.border} shadow-lg flex-shrink-0`}>{React.cloneElement(feature.icon as React.ReactElement<any>, { className: "w-5 h-5 md:w-6 md:h-6 text-white" })}</div>
                         <h3 className="text-2xl md:text-3xl font-bold leading-tight">{feature.title}</h3>
                         <p className={`${theme.textMuted} text-sm md:text-base leading-relaxed`}>{feature.desc}</p>
                         <ul className="space-y-2 mt-2">{feature.points.map((point, i) => (<li key={i} className={`flex items-center gap-2 ${isDark ? 'text-gray-300' : 'text-gray-700'} text-sm`}><CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" /><span>{point}</span></li>))}</ul>
@@ -587,7 +602,7 @@ export default function App() {
                            <img src={feature.image} alt={feature.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                            <div className={`absolute inset-0 bg-gradient-to-t ${isDark ? 'from-black/80 via-black/20 to-transparent' : 'from-white/80 via-white/20 to-transparent'} opacity-60 group-hover:opacity-40 transition-opacity duration-500`} />
                            <div className="absolute bottom-4 left-4 right-4">
-                                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md border ${theme.border} ${isDark ? 'bg-black/40 text-white' : 'bg-white/40 text-black'} text-xs font-medium`}>{React.cloneElement(feature.icon, { className: "w-3 h-3" })}<span>{feature.title}</span></div>
+                                <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-md border ${theme.border} ${isDark ? 'bg-black/40 text-white' : 'bg-white/40 text-black'} text-xs font-medium`}>{React.cloneElement(feature.icon as React.ReactElement<any>, { className: "w-3 h-3" })}<span>{feature.title}</span></div>
                            </div>
                       </div>
                     </div>
@@ -605,6 +620,7 @@ export default function App() {
                <span className="relative z-10 flex items-center gap-2"><span>🔥</span> Limited time: Save 90% compared to individual subscriptions</span>
            </div>
            <div className="flex flex-col md:flex-row gap-6 items-center max-w-6xl mx-auto">
+                {/* Comparison Card Left */}
                 <div className={`md:w-1/3 w-full ${isDark ? 'bg-[#0f0f0f]' : 'bg-white'} rounded-3xl p-8 border ${theme.border} text-left opacity-80 scale-95`}>
                      <h3 className="font-bold text-lg mb-1">Individual AI Subscriptions</h3>
                      <div className="text-3xl font-bold text-red-400 mb-2">$110 <span className="text-lg text-gray-500 font-normal line-through">($10,000)</span></div>
@@ -616,6 +632,7 @@ export default function App() {
                      </div>
                 </div>
                  <div className="w-12 h-12 rounded-full bg-[#1a1a1a] border border-white/10 flex items-center justify-center z-10 -my-6 md:-mx-6 md:my-0 shrink-0 shadow-xl"><span className="font-bold text-gray-500 text-xs">VS</span></div>
+                {/* Prism Pricing Card */}
                 <div className={`md:flex-1 w-full bg-gradient-to-b from-[#1a1a1a] to-black rounded-3xl p-1 border border-emerald-500/30 relative overflow-hidden shadow-2xl shadow-emerald-900/20`}>
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-blue-500" />
                     <div className="bg-[#0a0a0a] rounded-[22px] p-8 h-full relative">
@@ -661,6 +678,7 @@ export default function App() {
            </div>
         </LandingSection>
 
+        {/* Missing "Pick Characteristics" Section Restored */}
         <section className={`py-32 ${isDark ? 'bg-[#0a0a0a]' : 'bg-gray-50'} overflow-hidden relative`}>
              <div className="max-w-7xl mx-auto px-6 relative z-10">
                  <div className="text-center mb-20"><h2 className="text-3xl md:text-5xl font-bold mb-4">Pick the best characteristics <br /> of each AI model</h2></div>
@@ -691,6 +709,7 @@ export default function App() {
              </div>
         </section>
 
+        {/* FAQ Section */}
         <LandingSection id="faq" className="scroll-mt-20">
           <div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions (FAQs)</h2></div>
           <div className="max-w-3xl mx-auto space-y-4">
@@ -703,6 +722,7 @@ export default function App() {
           </div>
         </LandingSection>
 
+        {/* Missing "Bottom CTA" Section Restored */}
         <section className="py-32 relative overflow-hidden">
              <div className={`absolute inset-0 ${isDark ? 'bg-[#050505]' : 'bg-gray-900'} z-0`} />
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/20 rounded-full blur-[120px] pointer-events-none" />
@@ -777,6 +797,7 @@ export default function App() {
       );
   }
 
+  // Chat View
   return (
     <div className={`flex h-screen ${isDark ? 'bg-[#0f0f0f] text-gray-100' : 'bg-white text-gray-900'} overflow-hidden font-sans transition-colors duration-300`}>
       <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
