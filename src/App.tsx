@@ -652,7 +652,38 @@ export default function App() {
            </div>
         </LandingSection>
 
-        {/* FAQ Section Added Here */}
+        {/* Missing "Pick Characteristics" Section Restored */}
+        <section className={`py-32 ${isDark ? 'bg-[#0a0a0a]' : 'bg-gray-50'} overflow-hidden relative`}>
+             <div className="max-w-7xl mx-auto px-6 relative z-10">
+                 <div className="text-center mb-20"><h2 className="text-3xl md:text-5xl font-bold mb-4">Pick the best characteristics <br /> of each AI model</h2></div>
+                 <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-4 lg:gap-16">
+                     <div className="flex flex-col gap-6 w-full md:w-1/3">
+                        {MODEL_CHARACTERISTICS.left.map((model, idx) => (
+                             <div key={idx} className={`relative p-6 rounded-2xl border ${theme.border} ${theme.cardBg} hover:border-emerald-500/50 transition-colors group`}>
+                                 <div className="flex items-center gap-4 mb-3"><div className={`w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center border border-white/10`}>{model.icon}</div><div><h3 className="font-bold text-lg">{model.name}</h3><span className="text-[10px] uppercase tracking-wider font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">{model.tag}</span></div></div>
+                                 <p className={`text-sm ${theme.textMuted} leading-relaxed`}>{model.desc}</p>
+                                 <div className="hidden md:block absolute top-1/2 -right-8 w-8 h-[2px] bg-gradient-to-r from-emerald-500/50 to-transparent" /><div className="hidden md:block absolute top-1/2 -right-8 w-2 h-2 rounded-full bg-emerald-500 translate-x-1/2 -translate-y-1/2 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                             </div>
+                        ))}
+                     </div>
+                     <div className="relative w-64 h-64 flex items-center justify-center shrink-0 my-8 md:my-0">
+                         <div className="absolute inset-0 rounded-full border border-emerald-500/20 animate-[ping_3s_linear_infinite]" /><div className="absolute inset-4 rounded-full border border-emerald-500/30 animate-[ping_3s_linear_infinite_1s]" /><div className="absolute inset-8 rounded-full border border-emerald-500/40 animate-[ping_3s_linear_infinite_2s]" /><div className="absolute inset-0 bg-emerald-500/20 rounded-full blur-3xl" />
+                         <div className="relative z-10 w-32 h-32 bg-black rounded-full border border-emerald-500/50 flex items-center justify-center shadow-[0_0_50px_rgba(16,185,129,0.3)]"><PrismLogo className="w-16 h-16 text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]" /></div>
+                     </div>
+                     <div className="flex flex-col gap-6 w-full md:w-1/3">
+                        {MODEL_CHARACTERISTICS.right.map((model, idx) => (
+                             <div key={idx} className={`relative p-6 rounded-2xl border ${theme.border} ${theme.cardBg} hover:border-emerald-500/50 transition-colors group text-left`}>
+                                 <div className="flex items-center justify-start gap-4 mb-3 flex-row"><div className={`w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 order-2 lg:order-1`}>{model.icon}</div><div className="order-1 lg:order-2"><h3 className="font-bold text-lg">{model.name}</h3><span className="text-[10px] uppercase tracking-wider font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">{model.tag}</span></div></div>
+                                 <p className={`text-sm ${theme.textMuted} leading-relaxed`}>{model.desc}</p>
+                                 <div className="hidden md:block absolute top-1/2 -left-8 w-8 h-[2px] bg-gradient-to-l from-emerald-500/50 to-transparent" /><div className="hidden md:block absolute top-1/2 -left-8 w-2 h-2 rounded-full bg-emerald-500 -translate-x-1/2 -translate-y-1/2 shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+                             </div>
+                        ))}
+                     </div>
+                 </div>
+             </div>
+        </section>
+
+        {/* FAQ Section */}
         <LandingSection id="faq" className="scroll-mt-20">
           <div className="text-center mb-12"><h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions (FAQs)</h2></div>
           <div className="max-w-3xl mx-auto space-y-4">
@@ -664,6 +695,25 @@ export default function App() {
             ))}
           </div>
         </LandingSection>
+
+        {/* Missing "Bottom CTA" Section Restored */}
+        <section className="py-32 relative overflow-hidden">
+             <div className={`absolute inset-0 ${isDark ? 'bg-[#050505]' : 'bg-gray-900'} z-0`} />
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-500/20 rounded-full blur-[120px] pointer-events-none" />
+             <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+                 <h2 className="text-4xl md:text-6xl font-bold text-white mb-8 tracking-tight leading-tight">Ready to experience smarter & <br /> more accurate AI answers?</h2>
+                 <p className="text-gray-400 text-lg mb-12 max-w-2xl mx-auto leading-relaxed">Gain an edge with our exclusive Promptbook, designed to provide you with tailored insights and guidance across every industry and subject.</p>
+                 <button onClick={() => setView('signin')} className="group relative inline-flex items-center justify-center px-8 py-4 font-bold text-white transition-all duration-200 bg-transparent font-lg rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500">
+                    <div className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-emerald-500 to-blue-600 opacity-100 group-hover:opacity-90 transition-opacity" />
+                    <div className="absolute inset-0 w-full h-full rounded-full bg-gradient-to-br from-emerald-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity blur-md" />
+                    <span className="relative flex items-center gap-2 text-lg">Get Started Now <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></span>
+                 </button>
+                 <div className="mt-24 flex flex-col items-center gap-3 opacity-80">
+                     <PrismLogo className="w-8 h-8 text-emerald-400" /><span className="text-white text-lg font-bold">Prism AI</span>
+                     <div className="flex items-center gap-2 text-xs text-gray-500 mt-2"><Send className="w-3 h-3" /> support@prismai.ai</div>
+                 </div>
+             </div>
+        </section>
 
         <footer className={`border-t ${theme.border} ${isDark ? 'bg-[#020202]' : 'bg-white'} py-8 text-xs ${theme.textMuted}`}>
            <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
@@ -679,6 +729,7 @@ export default function App() {
   }
 
   if (view === 'signin') {
+      // ... (Rest of the component remains the same)
       return (
       <div className={`min-h-screen ${theme.bg} flex items-center justify-center p-4 font-sans ${theme.text} relative overflow-hidden transition-colors duration-300`}>
         <div className={`absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-green-500/10 rounded-full blur-[120px] ${!isDark && 'opacity-60'}`} />
