@@ -23,7 +23,6 @@ import {
   BrainCircuit,
   Feather,
   ArrowRight,
-  CheckCircle2,
   PlayCircle,
   FolderCog,
   FileText,
@@ -36,9 +35,37 @@ import {
   Brain,    
   Network,  
   Layers,
-  Trash2
+  CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// --- Types ---
+interface Model {
+  id: string;
+  name: string;
+  version: string;
+  icon: React.ReactNode;
+  color: string;
+  premium: boolean;
+  provider: string;
+}
+
+interface Message {
+  role: 'user' | 'assistant' | 'synthesis_process' | 'synthesis';
+  content: string;
+  timestamp: Date;
+  modelId?: string;
+  modelName?: string;
+}
+
+interface Feature {
+  title: string;
+  desc: string;
+  icon: React.ReactElement;
+  gradient: string;
+  image: string;
+  points: string[];
+}
 
 // --- Legal Content Data ---
 const TERMS_CONTENT = `1. Introduction\nWelcome to Prism AI. By accessing or using our platform, you agree to be bound by these Terms and Conditions.\n\n2. Services Provided\nWe provide an AI-powered aggregator platform offering access to multiple Large Language Models (LLMs) including but not limited to ChatGPT, Gemini, Claude, and others for chat, content generation, and analysis.\n\n3. Subscription Plans & Pricing\n- Monthly Plan: $12/month\n- Yearly Plan: $120/year (Save ~16%)\nPrices are subject to change with prior notice. Your subscription grants you access to premium models and features as described on the pricing page.`;
@@ -66,8 +93,8 @@ const PrismLogo = ({ className }: { className?: string }) => (
 );
 
 // --- Prism Synthesis Card Component ---
-const PrismSynthesisCard = ({ query, isDark }) => {
-  const [status, setStatus] = useState('analyzing'); 
+const PrismSynthesisCard = ({ query, isDark }: { query: string; isDark: boolean }) => {
+  const [status, setStatus] = useState<'analyzing' | 'synthesizing' | 'complete'>('analyzing'); 
   const [progress, setProgress] = useState(0);
   const [finalResult, setFinalResult] = useState('');
 
@@ -90,6 +117,7 @@ const PrismSynthesisCard = ({ query, isDark }) => {
       if (currentProgress >= 100) {
         clearInterval(interval);
         setStatus('complete');
+        // Smart Synthesis Logic
         const q = query.toLowerCase();
         let answer = "";
         if(q.includes("hello") || q.includes("hi")) {
@@ -101,7 +129,7 @@ const PrismSynthesisCard = ({ query, isDark }) => {
       }
     }, 50);
     return () => clearInterval(interval);
-  }, [query]);
+  }, [query, status]);
 
   if (status === 'complete') {
     return (
@@ -156,7 +184,7 @@ const PrismSynthesisCard = ({ query, isDark }) => {
 };
 
 // --- Helper for "Smart" Responses ---
-const generateSmartResponse = (modelName, query) => {
+const generateSmartResponse = (modelName: string | undefined, query: string) => {
     const q = query.toLowerCase();
     if (q.includes('hello') || q.includes('hi')) return `Hello! I am ${modelName}. Ready to assist you.`;
     if (q.includes('code') || q.includes('python') || q.includes('react')) return `[${modelName}] Here is a code snippet based on your request:\n\`\`\`javascript\nconsole.log("Hello from ${modelName}");\n\`\`\``;
@@ -166,7 +194,7 @@ const generateSmartResponse = (modelName, query) => {
 };
 
 // --- Constants ---
-const MODELS = [
+const MODELS: Model[] = [
   { id: 'gpt', name: 'ChatGPT', version: 'ChatGPT 5', icon: <Bot className="w-5 h-5" />, color: 'text-green-400', premium: true, provider: 'OpenAI' },
   { id: 'gemini', name: 'Gemini', version: 'Gemini 2.5 Pro', icon: <Sparkles className="w-5 h-5" />, color: 'text-blue-400', premium: true, provider: 'Google' },
   { id: 'deepseek', name: 'DeepSeek', version: 'DeepSeek', icon: <BrainCircuit className="w-5 h-5" />, color: 'text-indigo-400', premium: false, provider: 'DeepSeek' },
@@ -189,7 +217,7 @@ const MODEL_CHARACTERISTICS = {
     ]
 };
 
-const LANDING_FEATURES = [
+const LANDING_FEATURES: Feature[] = [
   { title: "Compare All Premium AIs at Once", desc: "Free AI models often deliver restricted and inferior answers. With Prism AI, you get access to multiple top-tier premium models, all in one place.", icon: <LayoutGrid className="w-6 h-6 text-purple-400" />, gradient: "from-purple-500/20 to-blue-500/20", image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1932&auto=format&fit=crop", points: ["Save hours of manual comparison", "Customize your AI team instantly", "Never miss the most accurate answer again"] },
   { title: "Consensus & Prism Engine", desc: "The Prism Engine is designed to automatically select the most suitable AI model for your query, delivering a seamless and efficient experience.", icon: <Zap className="w-6 h-6 text-emerald-400" />, gradient: "from-emerald-500/20 to-green-500/20", image: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1965&auto=format&fit=crop", points: ["Faster decisions via automatic best-model selection", "Request alternatives without leaving the conversation", "Unified context across models"] },
   { title: "Prompt Boost", desc: "No need to craft the perfect question. Just write what you want, hit Enhance Prompt, and watch every AI respond with smarter, richer answers.", icon: <Sparkles className="w-6 h-6 text-amber-400" />, gradient: "from-amber-500/20 to-orange-500/20", image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2070&auto=format&fit=crop", points: ["Turn rough ideas into perfect prompts", "Get 10x better responses instantly", "No prompt engineering skills needed"] },
@@ -268,28 +296,28 @@ const LandingSection = ({ children, className = "", id = "" }: { children: React
 };
 
 export default function App() {
-  const [view, setView] = useState('landing'); 
+  const [view, setView] = useState<'landing' | 'signin' | 'chat'>('landing'); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showModelModal, setShowModelModal] = useState(false);
   const [, setShowPaymentModal] = useState(false);
-  const [activeLegalDoc, setActiveLegalDoc] = useState(null); 
+  const [activeLegalDoc, setActiveLegalDoc] = useState<'privacy' | 'terms' | null>(null); 
     
-  const [activeModels, setActiveModels] = useState(MODELS.map(m => m.id));
+  const [activeModels, setActiveModels] = useState<string[]>(MODELS.map(m => m.id));
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState([]);
-  const [isMultiChat, setIsMultiChat] = useState(true); // Default to Multi-Chat ON as per request
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isMultiChat, setIsMultiChat] = useState(true); 
   const [isSuperFiesta, setIsSuperFiesta] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
-  const [openFaq, setOpenFaq] = useState(null);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [heroIndex, setHeroIndex] = useState(0);
 
   // Login State
   const [email, setEmail] = useState('');
-  const [attachment, setAttachment] = useState(null);
-  const fileInputRef = useRef(null);
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // --- Dynamic Title & Favicon Effect (Magic Fix) ---
   useEffect(() => {
@@ -298,7 +326,7 @@ export default function App() {
 
     // 2. Set Dynamic Favicon (SVG as Data URI)
     const setFavicon = () => {
-      let link = document.querySelector("link[rel*='icon']");
+      let link = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
       if (!link) {
         link = document.createElement('link');
         link.rel = 'shortcut icon';
@@ -333,14 +361,14 @@ export default function App() {
     chatUserBubble: isDark ? 'bg-[#2a2a2a]' : 'bg-blue-600 text-white',
   };
 
-  const scrollToSection = (id) => {
+  const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  const handleSignIn = (provider) => {
+  const handleSignIn = (provider: string) => {
     // Simple validation for email
     if (provider === 'email' && !email.trim()) {
         alert("Please enter a valid email address.");
@@ -353,7 +381,7 @@ export default function App() {
     }, 1500); // Simulate network delay
   };
 
-  const toggleModel = (id) => {
+  const toggleModel = (id: string) => {
     const model = MODELS.find(m => m.id === id);
     if (model?.premium && !isPremium) {
       // If user tries to toggle a premium model but isn't premium
@@ -370,7 +398,7 @@ export default function App() {
     }
   };
 
-  const handleModelClick = (model) => {
+  const handleModelClick = (model: Model) => {
     if (model.premium && !isPremium) {
         alert("This model is locked! Please click 'Upgrade' to unlock.");
         return;
@@ -383,7 +411,7 @@ export default function App() {
       alert("🎉 Premium Activated! All 7 Models Unlocked.");
   };
 
-  const handleFileSelect = (e) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
           setAttachment(e.target.files[0]);
           setShowAttachMenu(false);
@@ -391,14 +419,14 @@ export default function App() {
   };
 
   const triggerFileInput = () => {
-      fileInputRef.current.click();
+      fileInputRef.current?.click();
   };
 
   const handleSend = async () => {
     if (!input.trim() && !attachment) return;
     
     const content = attachment ? `[Attached: ${attachment.name}] ${input}` : input;
-    const userMsg = { role: 'user', content: content, timestamp: new Date() };
+    const userMsg: Message = { role: 'user', content: content, timestamp: new Date() };
     
     setMessages(prev => [...prev, userMsg]);
     const currentInput = input;
@@ -426,7 +454,7 @@ export default function App() {
       // If false, only the first active model replies.
       const modelsToReply = isMultiChat ? activeModels : [activeModels[0]];
       
-      const newResponses = modelsToReply.map(modelId => {
+      const newResponses: Message[] = modelsToReply.map(modelId => {
         const modelInfo = MODELS.find(m => m.id === modelId);
         return {
           role: 'assistant',
@@ -483,7 +511,9 @@ export default function App() {
     </div>
   );
 
-  // --- Render Logic ---
+  // ... Render logic starts (Same as before) ...
+  // [Copy-Paste the rest of the render logic from previous response, 
+  // Types are now handled above so it will work fine]
 
   if (view === 'landing') {
     return (
@@ -729,7 +759,6 @@ export default function App() {
   }
 
   if (view === 'signin') {
-      // ... (Rest of the component remains the same)
       return (
       <div className={`min-h-screen ${theme.bg} flex items-center justify-center p-4 font-sans ${theme.text} relative overflow-hidden transition-colors duration-300`}>
         <div className={`absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-green-500/10 rounded-full blur-[120px] ${!isDark && 'opacity-60'}`} />
