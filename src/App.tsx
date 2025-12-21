@@ -226,7 +226,7 @@ const callGeminiAPI = async (apiKey: string, prompt: string) => {
 // --- Constants ---
 const MODELS: Model[] = [
   { id: 'gpt', name: 'ChatGPT', version: 'ChatGPT 5', icon: <Bot className="w-5 h-5" />, color: 'text-green-400', premium: true, provider: 'OpenAI' },
-  { id: 'gemini', name: 'Gemini', version: 'Gemini 2.5 Pro', icon: <Sparkles className="w-5 h-5" />, color: 'text-blue-400', premium: true, provider: 'Google' },
+  { id: 'gemini', name: 'Gemini', version: 'Gemini 2.5 Pro', icon: <Sparkles className="w-5 h-5" />, color: 'text-blue-400', premium: false, provider: 'Google' }, // Unlocked Gemini
   { id: 'deepseek', name: 'DeepSeek', version: 'DeepSeek', icon: <BrainCircuit className="w-5 h-5" />, color: 'text-indigo-400', premium: false, provider: 'DeepSeek' },
   { id: 'perplexity', name: 'Perplexity', version: 'Perplexity', icon: <Globe className="w-5 h-5" />, color: 'text-teal-400', premium: true, provider: 'Perplexity' },
   { id: 'anthropic', name: 'Anthropic', version: 'Claude 3.7', icon: <Feather className="w-5 h-5" />, color: 'text-orange-400', premium: true, provider: 'Anthropic' },
@@ -337,7 +337,7 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isMultiChat, setIsMultiChat] = useState(true);
   const [isSuperFiesta, setIsSuperFiesta] = useState(false);
-  const [isPremium, setIsPremium] = useState(false);
+  const [isPremium, setIsPremium] = useState(true); // Default to TRUE for testing
   const [processing, setProcessing] = useState(false);
   const [isDark, setIsDark] = useState(true);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
