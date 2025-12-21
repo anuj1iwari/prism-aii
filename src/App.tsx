@@ -1,21 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  MessageSquare, 
-  Settings, 
-  Plus, 
-  Search, 
-  LayoutGrid, 
-  Users, 
-  Zap, 
-  Globe, 
-  Image as ImageIcon, 
-  Mic, 
-  Send, 
-  MoreHorizontal, 
-  ChevronDown, 
-  X, 
-  Lock, 
-  Check, 
+import {
+  MessageSquare,
+  Settings,
+  Plus,
+  Search,
+  LayoutGrid,
+  Users,
+  Zap,
+  Globe,
+  Image as ImageIcon,
+  Mic,
+  Send,
+  MoreHorizontal,
+  ChevronDown,
+  X,
+  Lock,
+  Check,
   Menu,
   Cpu,
   Sparkles,
@@ -30,12 +30,13 @@ import {
   Sun,
   Moon,
   LogIn,
-  Triangle, 
-  Activity, 
-  Brain,    
-  Network,  
+  Triangle,
+  Activity,
+  Brain,
+  Network,
   Layers,
-  CheckCircle2
+  CheckCircle2,
+  Key
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -74,12 +75,12 @@ const PRIVACY_CONTENT = `1. Introduction\nThis Privacy Policy explains how Prism
 // --- Custom Aesthetic Prism Logo ---
 const PrismLogo = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path d="M12 0.5L12.5 2L14 2.5L12.5 3L12 4.5L11.5 3L10 2.5L11.5 2L12 0.5Z" fill="white" className="opacity-60 animate-pulse" />
-    <circle cx="4" cy="18" r="0.4" fill="white" className="opacity-40" />
-    <circle cx="20" cy="5" r="0.4" fill="white" className="opacity-40" />
-    <path d="M11 4L3 20h16L11 4z" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M-2 14l10-4" stroke="white" strokeWidth="1.2" className="opacity-80" />
-    <path d="M8 10l5 0" stroke="white" strokeWidth="1.2" className="opacity-50" />
+    <path d="M12 0.5L12.5 2L14 2.5L12.5 3L12 4.5L11.5 3L10 2.5L11.5 2L12 0.5Z" fill="currentColor" className="opacity-60 animate-pulse" />
+    <circle cx="4" cy="18" r="0.4" fill="currentColor" className="opacity-40" />
+    <circle cx="20" cy="5" r="0.4" fill="currentColor" className="opacity-40" />
+    <path d="M11 4L3 20h16L11 4z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M-2 14l10-4" stroke="currentColor" strokeWidth="1.2" className="opacity-80" />
+    <path d="M8 10l5 0" stroke="currentColor" strokeWidth="1.2" className="opacity-50" />
     <g>
       <path d="M13 10l11-5" stroke="#FF4D4D" strokeWidth="0.8" strokeLinecap="round" className="opacity-90" />
       <path d="M13 10l11-3.2" stroke="#FF964D" strokeWidth="0.8" strokeLinecap="round" className="opacity-90" />
@@ -94,7 +95,7 @@ const PrismLogo = ({ className }: { className?: string }) => (
 
 // --- Prism Synthesis Card Component ---
 const PrismSynthesisCard = ({ query, isDark }: { query: string; isDark: boolean }) => {
-  const [status, setStatus] = useState<'analyzing' | 'synthesizing' | 'complete'>('analyzing'); 
+  const [status, setStatus] = useState<'analyzing' | 'synthesizing' | 'complete'>('analyzing');
   const [progress, setProgress] = useState(0);
   const [finalResult, setFinalResult] = useState('');
 
@@ -166,7 +167,7 @@ const PrismSynthesisCard = ({ query, isDark }: { query: string; isDark: boolean 
         {aiModels.map((ai, index) => {
           const angle = (index / 7) * 2 * Math.PI;
           const radius = 70;
-          const x = Math.cos(angle) * radius + 80 - 10; 
+          const x = Math.cos(angle) * radius + 80 - 10;
           const y = Math.sin(angle) * radius + 80 - 10;
           return (
             <div key={index} className={`absolute transition-all duration-500 transform ${status === 'synthesizing' ? 'scale-0 opacity-0 translate-x-[80px] translate-y-[80px]' : 'scale-100 opacity-100'}`} style={{ left: status === 'synthesizing' ? '50%' : `${x}px`, top: status === 'synthesizing' ? '50%' : `${y}px` }}>
@@ -183,7 +184,7 @@ const PrismSynthesisCard = ({ query, isDark }: { query: string; isDark: boolean 
   );
 };
 
-// --- Helper for "Smart" Responses ---
+// --- Helper for "Smart" Responses (Simulated) ---
 const generateSmartResponse = (modelName: string | undefined, query: string) => {
     const q = query.toLowerCase();
     const name = modelName || 'AI';
@@ -192,6 +193,34 @@ const generateSmartResponse = (modelName: string | undefined, query: string) => 
     if (q.includes('image')) return `[${name}] I can generate images. Please describe the scene in detail.`;
     if (q.includes('analysis')) return `[${name}] Analysis complete. The data suggests a strong correlation between X and Y.`;
     return `[${name}] Based on my training data, here is the answer to "${query}". This is a simulated response for demonstration.`;
+};
+
+// --- REAL GEMINI API CALL (Client Side for StackBlitz) ---
+const callGeminiAPI = async (apiKey: string, prompt: string) => {
+    try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: prompt }]
+                }]
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            return `Error from Google: ${data.error.message}`;
+        }
+        
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
+    } catch (error) {
+        console.error("Gemini API Error:", error);
+        return "Error connecting to Gemini API. Please check your API key and internet connection.";
+    }
 };
 
 // --- Constants ---
@@ -297,16 +326,16 @@ const LandingSection = ({ children, className = "", id = "" }: { children: React
 };
 
 export default function App() {
-  const [view, setView] = useState<'landing' | 'signin' | 'chat'>('landing'); 
+  const [view, setView] = useState<'landing' | 'signin' | 'chat'>('landing');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showModelModal, setShowModelModal] = useState(false);
   const [, setShowPaymentModal] = useState(false);
-  const [activeLegalDoc, setActiveLegalDoc] = useState<'privacy' | 'terms' | null>(null); 
-    
+  const [activeLegalDoc, setActiveLegalDoc] = useState<'privacy' | 'terms' | null>(null);
+   
   const [activeModels, setActiveModels] = useState<string[]>(MODELS.map(m => m.id));
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [isMultiChat, setIsMultiChat] = useState(true); 
+  const [isMultiChat, setIsMultiChat] = useState(true);
   const [isSuperFiesta, setIsSuperFiesta] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -314,6 +343,9 @@ export default function App() {
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [heroIndex, setHeroIndex] = useState(0);
+
+  // API Key State
+  const [googleApiKey, setGoogleApiKey] = useState('AIzaSyAhpjiA-aalGncfqxG8QITH3RiT--nQ-Wg');
 
   // Login State
   const [email, setEmail] = useState('');
@@ -344,7 +376,7 @@ export default function App() {
     if (view === 'landing') {
       const interval = setInterval(() => {
         setHeroIndex((prev) => (prev + 1) % HERO_STATES.length);
-      }, 4000); 
+      }, 4000);
       return () => clearInterval(interval);
     }
   }, [view]);
@@ -391,7 +423,7 @@ export default function App() {
         return;
       }
     }
-    
+   
     if (activeModels.includes(id)) {
       setActiveModels(activeModels.filter(m => m !== id));
     } else {
@@ -425,21 +457,21 @@ export default function App() {
 
   const handleSend = async () => {
     if (!input.trim() && !attachment) return;
-    
+   
     const content = attachment ? `[Attached: ${attachment.name}] ${input}` : input;
     const userMsg: Message = { role: 'user', content: content, timestamp: new Date() };
-    
+   
     setMessages(prev => [...prev, userMsg]);
     const currentInput = input;
     setInput('');
     setAttachment(null); // Clear attachment
     setProcessing(true);
-    
+   
     // Check for Prism Synthesis Mode (Super Fiesta)
     if (isSuperFiesta) {
         setTimeout(() => {
             setMessages(prev => [...prev, {
-                role: 'synthesis_process', 
+                role: 'synthesis_process',
                 content: currentInput,
                 timestamp: new Date()
             }]);
@@ -448,30 +480,46 @@ export default function App() {
         return;
     }
 
-    // Default Multi-Chat Behavior: All active models reply
-    setTimeout(() => {
-      // Determine which models reply. 
-      // If isMultiChat is true (default), ALL active models reply. 
-      // If false, only the first active model replies.
-      const modelsToReply = isMultiChat ? activeModels : [activeModels[0]];
-      
-      const newResponses: Message[] = modelsToReply.map(modelId => {
+    // Determine which models reply
+    const modelsToReply = isMultiChat ? activeModels : [activeModels[0]];
+    
+    // We will collect promises for all models
+    // If it's Gemini AND we have an API Key, we fetch real data.
+    // Otherwise we simulate.
+    const promises = modelsToReply.map(async (modelId) => {
         const modelInfo = MODELS.find(m => m.id === modelId);
+        let responseContent = "";
+
+        if (modelId === 'gemini' && googleApiKey) {
+            // Real API Call
+            responseContent = await callGeminiAPI(googleApiKey, currentInput);
+        } else {
+            // Simulated delay for other models
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+            responseContent = generateSmartResponse(modelInfo?.name, currentInput);
+        }
+
         return {
-          role: 'assistant',
-          modelId,
-          modelName: modelInfo?.name,
-          content: generateSmartResponse(modelInfo?.name, currentInput),
-          timestamp: new Date()
+            role: 'assistant' as const,
+            modelId,
+            modelName: modelInfo?.name,
+            content: responseContent,
+            timestamp: new Date()
         };
-      });
-      setMessages(prev => [...prev, ...newResponses]);
-      setProcessing(false);
-    }, 1000);
+    });
+
+    try {
+        const newResponses = await Promise.all(promises);
+        setMessages(prev => [...prev, ...newResponses]);
+    } catch (error) {
+        console.error("Error processing responses", error);
+    } finally {
+        setProcessing(false);
+    }
   };
 
   const AttachMenu = ({ dropUp = true }) => (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: dropUp ? 10 : -10, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: dropUp ? 10 : -10, scale: 0.95 }}
@@ -487,7 +535,7 @@ export default function App() {
   // --- Legal Modal Component ---
   const LegalModal = ({ title, content, onClose }: { title: string; content: string; onClose: () => void }) => (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
@@ -1142,6 +1190,20 @@ export default function App() {
                             </div>
                         </div>
                     ))}
+                    <div className="mt-4 pt-4 border-t border-gray-700/50">
+                        <label className={`text-xs font-bold ${theme.textMuted} uppercase tracking-wider mb-2 block`}>Google Gemini API Key (Optional)</label>
+                        <div className={`flex items-center gap-2 ${isDark ? 'bg-black/40' : 'bg-gray-100'} border ${theme.border} rounded-lg px-3 py-2`}>
+                            <Key className="w-4 h-4 text-gray-500" />
+                            <input 
+                                type="password" 
+                                placeholder="Paste your AI Studio Key here for real responses" 
+                                className="bg-transparent border-none outline-none text-sm w-full"
+                                value={googleApiKey}
+                                onChange={(e) => setGoogleApiKey(e.target.value)}
+                            />
+                        </div>
+                        <p className="text-[10px] text-gray-500 mt-1">Leave empty to use simulated mode. Get key from AI Studio.</p>
+                    </div>
                 </div>
                 <div className={`p-4 ${isDark ? 'bg-[#111]' : 'bg-gray-50'} border-t ${theme.border} space-y-3`}>
                     <button onClick={() => setShowModelModal(false)} className={`w-full ${isDark ? 'bg-[#333] hover:bg-[#444] text-white' : 'bg-gray-200 hover:bg-gray-300 text-black'} font-medium py-3 rounded-xl transition-colors`}>
